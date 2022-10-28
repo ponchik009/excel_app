@@ -1,0 +1,21 @@
+.wrapper {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.popup {
+  position: relative;
+  background: wheat;
+  width: fit-content;
+  padding: 16px;
+}
+
+.close {
+  cursor: pointer;
+  position: absolute;
+  right: 0.3rem;
+  top: 0.1rem;
+}
