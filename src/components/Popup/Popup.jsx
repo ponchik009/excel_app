@@ -21,8 +21,23 @@ const Popup = ({ x, y, data, open, onClose }) => {
                 <tbody>
                   {data.map((row) => (
                     <tr key={Math.random()}>
-                      {row.map((value) => (
-                        <td key={Math.random()}>{value}</td>
+                      {row.map((cell, index, arr) => (
+                        <td
+                          key={Math.random()}
+                          className="clickableCell"
+                          style={{
+                            backgroundColor: `${
+                              String(
+                                "#" +
+                                  cell?.style?.fill?.fgColor?.argb?.substring(2)
+                              ) || "white"
+                            }`,
+                          }}
+                        >
+                          {typeof cell.value === "object"
+                            ? cell.value.result || 0
+                            : cell.value}
+                        </td>
                       ))}
                     </tr>
                   ))}
