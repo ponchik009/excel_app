@@ -148,7 +148,9 @@ function App() {
         placeholder="Выберите файл 2"
         onChange={onFileChange2}
       />
+      <label htmlFor="edit">Редактировать</label>
       <input
+        id="edit"
         type="checkbox"
         value={isEdit}
         onChange={(e) => setIsEdit(e.target.checked)}
