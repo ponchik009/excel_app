@@ -17,8 +17,11 @@ function App() {
   const [popupX, setPopupX] = React.useState(0);
   const [popupY, setPopupY] = React.useState(0);
 
-  const [currentText, setCurrentText] = React.useState("");
-  const [currentColor, setCurrentColor] = React.useState("white");
+  // const [currentText, setCurrentText] = React.useState("");
+  // const [currentColor, setCurrentColor] = React.useState("white");
+  const [currentCell, setCurrentCell] = React.useState(null);
+  const [i1, setI1] = React.useState(null);
+  const [i2, setI2] = React.useState(null);
 
   const [isEdit, setIsEdit] = React.useState(false);
 
@@ -37,13 +40,10 @@ function App() {
   );
 
   const onCellClick = React.useCallback(
-    (e, cell, index, row) => {
-      setCurrentColor(
-        String("#" + cell?.style?.fill?.fgColor?.argb?.substring(2)) || "white"
-      );
-      setCurrentText(
-        typeof cell.value === "object" ? cell.value.result || 0 : cell.value
-      );
+    (e, cell, index1, index2, row) => {
+      setCurrentCell(cell);
+      setI1(index1);
+      setI2(index2);
       const customerName = row[2].value;
       const dataToFill = [data2[0]];
       for (let i = 1; i < data2.length; i++) {
@@ -93,7 +93,9 @@ function App() {
           for (let i = 0; i < rows.length; i++) {
             for (let j = 0; j < rows[i].length; j++) {
               if (!rows[i][j]) {
-                rows[i][j] = "";
+                rows[i][j] = {
+                  value: "",
+                };
               }
             }
           }
@@ -154,20 +156,23 @@ function App() {
       {data && Array.isArray(data) && (
         <table>
           <tbody>
-            {data.map((row) => (
+            {data.map((row, index1) => (
               <tr key={Math.random()}>
-                {row.map((cell, index, arr) => {
+                {row.map((cell, index2, arr) => {
                   // console.log(cell.value, cell?.style);
                   return (
                     <td
                       key={Math.random()}
-                      onClick={(e) => onCellClick(e, cell, index, arr)}
+                      onClick={(e) => onCellClick(e, cell, index1, index2, arr)}
                       className="clickableCell"
                       style={{
                         backgroundColor: `${
-                          String(
-                            "#" + cell?.style?.fill?.fgColor?.argb?.substring(2)
-                          ) || "white"
+                          String(cell?.style?.fill?.fgColor?.argb?.substring(2))
+                            ? "#" +
+                              String(
+                                cell?.style?.fill?.fgColor?.argb?.substring(2)
+                              )
+                            : "white"
                         }`,
                       }}
                     >
@@ -191,14 +196,20 @@ function App() {
           y={popupY}
         />
       ) : (
-        <PopupEdit
-          open={popupShow}
-          onClose={onPopupClose}
-          text={currentText}
-          selectedColor={currentColor}
-          x={popupX}
-          y={popupY}
-        />
+        currentCell && (
+          <PopupEdit
+            open={popupShow}
+            onClose={onPopupClose}
+            // text={currentText}
+            // selectedColor={currentColor}
+            cell={currentCell}
+            x={popupX}
+            y={popupY}
+            setData={setData}
+            i={i1}
+            j={i2}
+          />
+        )
       )}
     </div>
   );

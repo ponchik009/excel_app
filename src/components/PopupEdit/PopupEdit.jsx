@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 
 import styles from "./PopupEdit.module.css";
 
-const Colors = ["white", "#FFFF00", "#92D050"];
+const Colors = ["#FFFFFF", "#FFFF00", "#92D050"];
 
 const PopupEdit = ({
   x,
@@ -11,12 +11,57 @@ const PopupEdit = ({
   text = "",
   open,
   onClose,
-  selectedColor = "white",
+  selectedColor = "#FFFFFF",
+  cell = null,
+  setData,
+  i,
+  j,
 }) => {
-  const [value, setValue] = React.useState(text);
+  const [value, setValue] = React.useState(
+    typeof cell.value === "object" ? cell.value.result || 0 : cell.value
+  );
+  const [currentColor, setCurrentColor] = React.useState(
+    cell?.style?.fill?.fgColor?.argb?.substring(2)
+      ? "#" + String(cell?.style?.fill?.fgColor?.argb?.substring(2))
+      : "#FFFFFF"
+  );
+
+  React.useEffect(() => {
+    console.log(cell);
+    setValue(
+      typeof cell.value === "object" ? cell.value.result || 0 : cell.value
+    );
+    setCurrentColor(
+      cell?.style?.fill?.fgColor?.argb?.substring(2)
+        ? "#" + String(cell?.style?.fill?.fgColor?.argb?.substring(2))
+        : "#FFFFFF"
+    );
+  }, [cell]);
+
+  const onOkClick = () => {
+    setData((prev) =>
+      prev.map((row, i1) =>
+        row.map((c, i2) => {
+          return i1 === i && i2 === j
+            ? {
+                ...c,
+                value,
+                style: {
+                  fill: {
+                    fgColor: { argb: "FF" + currentColor.substring(1) },
+                  },
+                },
+              }
+            : c;
+        })
+      )
+    );
+    onClose();
+  };
+
   return ReactDOM.createPortal(
     <>
-      {open && (
+      {open && cell && (
         <div className={styles.wrapper} onClick={onClose}>
           <div
             className={styles.popup}
@@ -36,7 +81,9 @@ const PopupEdit = ({
                     cursor: "pointer",
                     marginBottom: "16px",
                   }}
-                  className={selectedColor === color && styles.active}
+                  className={currentColor === color && styles.active}
+                  key={color}
+                  onClick={() => setCurrentColor(color)}
                 ></div>
               ))}
             </div>
@@ -46,6 +93,9 @@ const PopupEdit = ({
               value={value}
               onChange={(e) => setValue(e.target.value)}
             ></textarea>
+            <button style={{ display: "block" }} onClick={onOkClick}>
+              OK
+            </button>
           </div>
         </div>
       )}
