@@ -3,6 +3,7 @@ import Excel from "exceljs";
 
 import "./App.css";
 import Popup from "./components/Popup/Popup";
+import PopupEdit from "./components/PopupEdit/PopupEdit";
 
 function App() {
   const [file, setFile] = React.useState(null);
@@ -15,6 +16,11 @@ function App() {
   const [popupData, setPopupData] = React.useState(null);
   const [popupX, setPopupX] = React.useState(0);
   const [popupY, setPopupY] = React.useState(0);
+
+  const [currentText, setCurrentText] = React.useState("");
+  const [currentColor, setCurrentColor] = React.useState("white");
+
+  const [isEdit, setIsEdit] = React.useState(false);
 
   const onFileChange = React.useCallback(
     (e) => {
@@ -31,7 +37,13 @@ function App() {
   );
 
   const onCellClick = React.useCallback(
-    (e, value, index, row) => {
+    (e, cell, index, row) => {
+      setCurrentColor(
+        String("#" + cell?.style?.fill?.fgColor?.argb?.substring(2)) || "white"
+      );
+      setCurrentText(
+        typeof cell.value === "object" ? cell.value.result || 0 : cell.value
+      );
       const customerName = row[2].value;
       const dataToFill = [data2[0]];
       for (let i = 1; i < data2.length; i++) {
@@ -134,6 +146,11 @@ function App() {
         placeholder="Выберите файл 2"
         onChange={onFileChange2}
       />
+      <input
+        type="checkbox"
+        value={isEdit}
+        onChange={(e) => setIsEdit(e.target.checked)}
+      />
       {data && Array.isArray(data) && (
         <table>
           <tbody>
@@ -144,7 +161,7 @@ function App() {
                   return (
                     <td
                       key={Math.random()}
-                      onClick={(e) => onCellClick(e, cell.value, index, arr)}
+                      onClick={(e) => onCellClick(e, cell, index, arr)}
                       className="clickableCell"
                       style={{
                         backgroundColor: `${
@@ -165,13 +182,24 @@ function App() {
           </tbody>
         </table>
       )}
-      <Popup
-        open={popupShow}
-        onClose={onPopupClose}
-        data={popupData}
-        x={popupX}
-        y={popupY}
-      />
+      {!isEdit ? (
+        <Popup
+          open={popupShow}
+          onClose={onPopupClose}
+          data={popupData}
+          x={popupX}
+          y={popupY}
+        />
+      ) : (
+        <PopupEdit
+          open={popupShow}
+          onClose={onPopupClose}
+          text={currentText}
+          selectedColor={currentColor}
+          x={popupX}
+          y={popupY}
+        />
+      )}
     </div>
   );
 }
