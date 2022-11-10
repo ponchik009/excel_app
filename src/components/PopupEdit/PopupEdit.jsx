@@ -47,8 +47,15 @@ const PopupEdit = ({
                 ...c,
                 value,
                 style: {
+                  ...c.style,
                   fill: {
-                    fgColor: { argb: "FF" + currentColor.substring(1) },
+                    ...c.style?.fill,
+                    pattern: "solid",
+                    type: "pattern",
+                    fgColor: {
+                      ...c.style?.fill?.fgColor,
+                      argb: "FF" + currentColor.substring(1),
+                    },
                   },
                 },
               }

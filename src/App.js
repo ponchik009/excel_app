@@ -140,6 +140,46 @@ function App() {
     }
   }, [file2]);
 
+  const download = async () => {
+    // write to a file
+    const workbook = new Excel.Workbook();
+    const worksheet = workbook.addWorksheet("1");
+
+    const dataToWrite = data.map((row) => row.slice(1));
+
+    for (let row of dataToWrite) {
+      worksheet.addRow(
+        row.map((cell) =>
+          typeof cell.value === "object" ? cell.value.result || 0 : cell.value
+        )
+      );
+    }
+
+    worksheet.eachRow((row, index) => {
+      row.eachCell((cell, index2) => {
+        // console.log(dataToWrite[index - 1][index2 - 1].style);
+        cell.style = dataToWrite[index - 1][index2 - 1].style;
+      });
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer({ base64: true });
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.style.display = "none";
+    a.href = url;
+    a.download = "data.xlsx";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () {
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }, 0);
+  };
+
   return (
     <div className="app">
       <input type="file" placeholder="Выберите файл" onChange={onFileChange} />
@@ -155,6 +195,9 @@ function App() {
         value={isEdit}
         onChange={(e) => setIsEdit(e.target.checked)}
       />
+      <button type="button" onClick={download} style={{ marginLeft: "24px" }}>
+        Скачать файл
+      </button>
       {data && Array.isArray(data) && (
         <table>
           <tbody>
